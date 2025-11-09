@@ -1,0 +1,185 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Expense, ExpenseFormData } from "@/lib/types";
+import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { expenseService } from "@/services/expense.service";
+import { categoryService } from "@/services/category.service";
+import { paymentMethodService } from "@/services/paymentMethod.service";
+import { formatDateForInput } from "@/lib/utils/format";
+
+interface ExpenseFormProps {
+  expense?: Expense;
+  onSuccess: () => void;
+}
+
+export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
+  const [formData, setFormData] = useState<ExpenseFormData>({
+    amount: 0,
+    description: "",
+    categoryId: "",
+    paymentMethodId: "",
+    date: new Date().toISOString().split("T")[0],
+  });
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof ExpenseFormData, string>>
+  >({});
+  const [categories, setCategories] = useState<any[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const cats = await categoryService.getAll();
+      const pms = await paymentMethodService.getAll();
+      setCategories(cats);
+      setPaymentMethods(pms);
+    };
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    if (expense) {
+      setFormData({
+        amount: expense.amount,
+        description: expense.description,
+        categoryId: expense.categoryId,
+        paymentMethodId: expense.paymentMethodId,
+        date: formatDateForInput(expense.date),
+      });
+    }
+  }, [expense]);
+
+  const validate = (): boolean => {
+    const newErrors: Partial<Record<keyof ExpenseFormData, string>> = {};
+
+    if (!formData.amount || formData.amount <= 0) {
+      newErrors.amount = "Số tiền phải lớn hơn 0";
+    }
+
+    if (!formData.description || formData.description.trim().length < 3) {
+      newErrors.description = "Mô tả phải có ít nhất 3 ký tự";
+    }
+
+    if (!formData.categoryId) {
+      newErrors.categoryId = "Bạn phải chọn một danh mục";
+    }
+
+    if (!formData.paymentMethodId) {
+      newErrors.paymentMethodId = "Bạn phải chọn một phương thức thanh toán";
+    }
+
+    if (!formData.date) {
+      newErrors.date = "Bạn phải chọn một ngày";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validate()) {
+      return;
+    }
+
+    if (expense) {
+      await expenseService.update(expense.id, formData);
+    } else {
+      await expenseService.create(formData);
+    }
+
+    onSuccess();
+  };
+
+  return (
+    <Card>
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+        <Input
+          type="number"
+          label="Số Tiền"
+          value={formData.amount || ""}
+          onChange={(e) =>
+            setFormData({ ...formData, amount: Number(e.target.value) })
+          }
+          error={errors.amount}
+          step="0.01"
+          min="0.01"
+          required
+        />
+
+        <Input
+          type="text"
+          label="Mô Tả"
+          value={formData.description}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
+          error={errors.description}
+          placeholder="Ví dụ: Ăn trưa tại nhà hàng"
+          required
+        />
+
+        <Select
+          label="Danh Mục"
+          value={formData.categoryId}
+          onChange={(e) =>
+            setFormData({ ...formData, categoryId: e.target.value })
+          }
+          error={errors.categoryId}
+          options={[
+            { value: "", label: "Chọn một danh mục" },
+            ...categories.map((cat) => ({
+              value: cat.id,
+              label: cat.name,
+            })),
+          ]}
+          required
+        />
+
+        <Select
+          label="Phương Thức Thanh Toán"
+          value={formData.paymentMethodId}
+          onChange={(e) =>
+            setFormData({ ...formData, paymentMethodId: e.target.value })
+          }
+          error={errors.paymentMethodId}
+          options={[
+            { value: "", label: "Chọn một phương thức thanh toán" },
+            ...paymentMethods.map((pm) => ({
+              value: pm.id,
+              label: pm.name,
+            })),
+          ]}
+          required
+        />
+
+        <Input
+          type="date"
+          label="Ngày"
+          value={formData.date}
+          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+          error={errors.date}
+          required
+        />
+
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => window.history.back()}
+            className="w-full sm:w-auto"
+          >
+            Hủy
+          </Button>
+          <Button type="submit" className="w-full sm:w-auto">
+            {expense ? "Cập Nhật" : "Tạo"} Chi Tiêu
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+}
