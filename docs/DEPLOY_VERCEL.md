@@ -72,7 +72,20 @@ vercel
    - Link với project hiện có hoặc tạo mới
    - Xác nhận settings
 
-## Bước 4: Cấu Hình Biến Môi Trường
+## Bước 4: Cấu Hình MongoDB Atlas Network Access
+
+**QUAN TRỌNG**: Trước khi deploy, bạn cần thêm IP của Vercel vào MongoDB Atlas.
+
+1. Đăng nhập [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Vào **Network Access** (hoặc **Security** → **Network Access**)
+3. Click **"Add IP Address"**
+4. Nhập `0.0.0.0/0` vào **Access List Entry**
+5. Thêm comment: `"Vercel Deployment"`
+6. Click **"Confirm"**
+
+⚠️ **Lưu ý**: `0.0.0.0/0` cho phép tất cả IP. Để bảo mật hơn, xem [MONGODB_VERCEL_IP.md](./MONGODB_VERCEL_IP.md)
+
+## Bước 5: Cấu Hình Biến Môi Trường
 
 ### Trong Vercel Dashboard:
 
@@ -109,7 +122,7 @@ MONGODB_DB_NAME=quan-ly-chi-tieu
 JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
 ```
 
-## Bước 5: Kiểm Tra Build
+## Bước 6: Kiểm Tra Build
 
 1. Sau khi cấu hình biến môi trường, Vercel sẽ tự động trigger một build mới
 2. Hoặc bạn có thể:
@@ -121,7 +134,7 @@ JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
    - Click vào deployment
    - Xem **"Build Logs"** để đảm bảo không có lỗi
 
-## Bước 6: Kiểm Tra Ứng Dụng
+## Bước 7: Kiểm Tra Ứng Dụng
 
 1. Sau khi deploy thành công, bạn sẽ nhận được URL:
 
@@ -133,7 +146,7 @@ JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
    - Kết nối MongoDB thành công
    - Các chức năng CRUD hoạt động
 
-## Bước 7: Cấu Hình Domain Tùy Chỉnh (Tùy Chọn)
+## Bước 8: Cấu Hình Domain Tùy Chỉnh (Tùy Chọn)
 
 1. Vào **Settings** → **Domains**
 2. Thêm domain của bạn
@@ -160,6 +173,7 @@ JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
   - Kiểm tra MongoDB URI đúng format
   - Kiểm tra IP whitelist trong MongoDB Atlas (thêm `0.0.0.0/0` để cho phép tất cả)
   - Kiểm tra username/password đã URL-encoded
+  - Xem hướng dẫn chi tiết tại [MONGODB_VERCEL_IP.md](./MONGODB_VERCEL_IP.md)
 
 ### Lỗi Runtime
 
@@ -172,6 +186,7 @@ JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
 - **Giải pháp**:
   - Kiểm tra Network Access trong MongoDB Atlas
   - Thêm IP của Vercel (hoặc `0.0.0.0/0` cho development)
+  - Xem hướng dẫn chi tiết tại [MONGODB_VERCEL_IP.md](./MONGODB_VERCEL_IP.md)
 
 ## Tự Động Deploy
 

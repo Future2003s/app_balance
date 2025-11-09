@@ -140,6 +140,28 @@ export function ExpenseFilters({
             )
           }
         />
+        <Select
+          label="Trạng Thái"
+          value={
+            localFilters.isCompleted === undefined
+              ? ""
+              : localFilters.isCompleted
+              ? "true"
+              : "false"
+          }
+          onChange={(e) => {
+            if (e.target.value === "") {
+              handleFilterChange("isCompleted", undefined);
+            } else {
+              handleFilterChange("isCompleted", e.target.value === "true");
+            }
+          }}
+          options={[
+            { value: "", label: "Tất Cả" },
+            { value: "true", label: "Đã Hoàn Thành" },
+            { value: "false", label: "Chưa Hoàn Thành" },
+          ]}
+        />
         <Input
           type="text"
           label="Tìm Kiếm"

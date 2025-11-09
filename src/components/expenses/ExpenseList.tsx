@@ -7,17 +7,19 @@ import { categoryService } from "@/services/category.service";
 import { paymentMethodService } from "@/services/paymentMethod.service";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, CheckCircle2, Circle } from "lucide-react";
 import Link from "next/link";
 
 interface ExpenseListProps {
   expenses: Expense[];
   onDelete: (id: string) => void;
+  onToggleComplete?: (id: string, isCompleted: boolean) => void;
 }
 
 export const ExpenseList = memo(function ExpenseList({
   expenses,
   onDelete,
+  onToggleComplete,
 }: ExpenseListProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -95,7 +97,37 @@ export const ExpenseList = memo(function ExpenseList({
                     {formatDate(expense.date)}
                   </td>
                   <td className="px-4 lg:px-6 py-4 text-sm text-gray-900">
-                    {expense.description}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        {expense.isCompleted ? (
+                          <button
+                            type="button"
+                            onClick={() => onToggleComplete?.(expense.id, !expense.isCompleted)}
+                            title="Click để đánh dấu chưa hoàn thành"
+                            className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors"
+                          >
+                            <CheckCircle2 className="w-5 h-5 text-green-500 hover:text-green-600 transition-colors" />
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => onToggleComplete?.(expense.id, !expense.isCompleted)}
+                            title="Click để đánh dấu đã hoàn thành"
+                            className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors"
+                          >
+                            <Circle className="w-5 h-5 text-gray-300 hover:text-gray-400 transition-colors" />
+                          </button>
+                        )}
+                        <span className={expense.isCompleted ? "line-through text-gray-500" : ""}>
+                          {expense.description}
+                        </span>
+                      </div>
+                      {expense.note && (
+                        <div className="text-xs text-gray-500 mt-1 italic ml-6">
+                          {expense.note}
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                     {category && (
@@ -147,9 +179,35 @@ export const ExpenseList = memo(function ExpenseList({
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-1">
-                    {expense.description}
-                  </h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    {expense.isCompleted ? (
+                      <button
+                        type="button"
+                        onClick={() => onToggleComplete?.(expense.id, !expense.isCompleted)}
+                        title="Click để đánh dấu chưa hoàn thành"
+                        className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors"
+                      >
+                        <CheckCircle2 className="w-5 h-5 text-green-500 hover:text-green-600 transition-colors" />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => onToggleComplete?.(expense.id, !expense.isCompleted)}
+                        title="Click để đánh dấu đã hoàn thành"
+                        className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors"
+                      >
+                        <Circle className="w-5 h-5 text-gray-300 hover:text-gray-400 transition-colors" />
+                      </button>
+                    )}
+                    <h3 className={`font-semibold ${expense.isCompleted ? "line-through text-gray-500" : "text-gray-900"}`}>
+                      {expense.description}
+                    </h3>
+                  </div>
+                  {expense.note && (
+                    <p className="text-xs text-gray-500 italic mb-2 ml-6">
+                      {expense.note}
+                    </p>
+                  )}
                   <p className="text-sm text-gray-500 mb-2">
                     {formatDate(expense.date)}
                   </p>

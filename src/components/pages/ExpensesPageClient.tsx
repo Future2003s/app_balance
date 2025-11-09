@@ -49,6 +49,17 @@ export function ExpensesPageClient() {
     }
   };
 
+  const handleToggleComplete = async (id: string, isCompleted: boolean) => {
+    try {
+      await expenseService.update(id, { isCompleted });
+      // Recargar gastos después de actualizar
+      const filtered = await expenseService.filter(filters);
+      setExpenses(filtered);
+    } catch (error) {
+      console.error("Error toggling complete status:", error);
+    }
+  };
+
   if (!isClient) {
     return (
       <DashboardLayout>
@@ -107,6 +118,7 @@ export function ExpensesPageClient() {
             <ExpenseList
               expenses={expenses}
               onDelete={handleDelete}
+              onToggleComplete={handleToggleComplete}
             />
           </Card>
         </Suspense>

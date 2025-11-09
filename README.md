@@ -98,6 +98,7 @@ Xem hướng dẫn chi tiết tại [docs/DEPLOY_VERCEL.md](./docs/DEPLOY_VERCEL
 - [Cấu Hình MongoDB](./docs/MONGODB_SETUP.md)
 - [Cấu Hình Environment](./docs/CONFIGURACION_ENV.md)
 - [Hướng Dẫn Deploy](./docs/DEPLOY_VERCEL.md)
+- [Cấu Hình IP Vercel cho MongoDB](./docs/MONGODB_VERCEL_IP.md)
 
 ## 🛠️ Công Nghệ
 

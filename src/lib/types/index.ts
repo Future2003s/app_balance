@@ -4,6 +4,8 @@ export interface Expense {
   id: string;
   amount: number;
   description: string;
+  note?: string;
+  isCompleted?: boolean;
   categoryId: string;
   paymentMethodId: string;
   date: Date | string;
@@ -32,6 +34,8 @@ export interface PaymentMethod {
 export interface ExpenseFormData {
   amount: number;
   description: string;
+  note?: string;
+  isCompleted?: boolean;
   categoryId: string;
   paymentMethodId: string;
   date: string;
@@ -45,6 +49,7 @@ export interface ExpenseFilters {
   minAmount?: number;
   maxAmount?: number;
   search?: string;
+  isCompleted?: boolean;
 }
 
 export interface DashboardStats {

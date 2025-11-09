@@ -10,7 +10,11 @@ import { Card } from "@/components/ui/Card";
 import { expenseService } from "@/services/expense.service";
 import { categoryService } from "@/services/category.service";
 import { paymentMethodService } from "@/services/paymentMethod.service";
-import { formatDateForInput, formatNumber, parseFormattedNumber } from "@/lib/utils/format";
+import {
+  formatDateForInput,
+  formatNumber,
+  parseFormattedNumber,
+} from "@/lib/utils/format";
 
 interface ExpenseFormProps {
   expense?: Expense;
@@ -21,6 +25,8 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
   const [formData, setFormData] = useState<ExpenseFormData>({
     amount: 0,
     description: "",
+    note: "",
+    isCompleted: false,
     categoryId: "",
     paymentMethodId: "",
     date: new Date().toISOString().split("T")[0],
@@ -50,6 +56,8 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
       setFormData({
         amount: expense.amount,
         description: expense.description,
+        note: expense.note || "",
+        isCompleted: expense.isCompleted || false,
         categoryId: expense.categoryId,
         paymentMethodId: expense.paymentMethodId,
         date: formatDateForInput(expense.date),
@@ -112,25 +120,25 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
           value={formattedAmount}
           onChange={(e) => {
             const inputValue = e.target.value;
-            
+
             // Si está vacío, limpiar todo
-            if (inputValue === '') {
-              setFormattedAmount('');
+            if (inputValue === "") {
+              setFormattedAmount("");
               setFormData({ ...formData, amount: 0 });
               return;
             }
-            
+
             // Eliminar todos los caracteres que no sean dígitos
             // (eliminar puntos de formato anterior)
-            const digitsOnly = inputValue.replace(/\D/g, '');
-            
+            const digitsOnly = inputValue.replace(/\D/g, "");
+
             // Si no hay dígitos, limpiar
-            if (digitsOnly === '') {
-              setFormattedAmount('');
+            if (digitsOnly === "") {
+              setFormattedAmount("");
               setFormData({ ...formData, amount: 0 });
               return;
             }
-            
+
             // Convertir a número y formatear
             const numericValue = parseInt(digitsOnly, 10);
             if (!isNaN(numericValue)) {
@@ -145,7 +153,7 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
               setFormData({ ...formData, amount: numericValue });
               setFormattedAmount(formatNumber(numericValue));
             } else {
-              setFormattedAmount('');
+              setFormattedAmount("");
               setFormData({ ...formData, amount: 0 });
             }
           }}
@@ -165,6 +173,23 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
           placeholder="Ví dụ: Ăn trưa tại nhà hàng"
           required
         />
+
+        <div className="w-full">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Ghi Chú (Tùy chọn)
+          </label>
+          <textarea
+            value={formData.note || ""}
+            onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+            placeholder="Ghi chú thêm về chi tiêu này..."
+            rows={3}
+            maxLength={500}
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-colors duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500"
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            {(formData.note || "").length}/500 ký tự
+          </p>
+        </div>
 
         <Select
           label="Danh Mục"
@@ -207,6 +232,24 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
           error={errors.date}
           required
         />
+
+        <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <input
+            type="checkbox"
+            id="isCompleted"
+            checked={formData.isCompleted || false}
+            onChange={(e) =>
+              setFormData({ ...formData, isCompleted: e.target.checked })
+            }
+            className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+          />
+          <label
+            htmlFor="isCompleted"
+            className="text-sm font-medium text-gray-700 cursor-pointer flex-1"
+          >
+            Đánh dấu là đã hoàn thành
+          </label>
+        </div>
 
         <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-4">
           <Button

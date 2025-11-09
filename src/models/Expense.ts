@@ -4,6 +4,8 @@ export interface IExpense extends Document {
   userId: string;
   amount: number;
   description: string;
+  note?: string;
+  isCompleted: boolean;
   categoryId: string;
   paymentMethodId: string;
   date: Date;
@@ -29,6 +31,17 @@ const ExpenseSchema: Schema = new Schema(
       trim: true,
       minlength: 3,
       maxlength: 200,
+    },
+    note: {
+      type: String,
+      required: false,
+      trim: true,
+      maxlength: 500,
+    },
+    isCompleted: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
     categoryId: {
       type: String,

@@ -38,6 +38,17 @@ export async function GET(request: NextRequest) {
     if (searchParams.get("search")) {
       filters.search = searchParams.get("search")!;
     }
+    if (
+      searchParams.get("isCompleted") !== null &&
+      searchParams.get("isCompleted") !== undefined
+    ) {
+      const isCompletedValue = searchParams.get("isCompleted");
+      if (isCompletedValue === "true") {
+        filters.isCompleted = true;
+      } else if (isCompletedValue === "false") {
+        filters.isCompleted = false;
+      }
+    }
 
     // Construir query de MongoDB
     const query: any = {
@@ -74,9 +85,15 @@ export async function GET(request: NextRequest) {
       query.description = { $regex: filters.search, $options: "i" };
     }
 
+    if (filters.isCompleted !== undefined) {
+      query.isCompleted = filters.isCompleted;
+    }
+
     // Optimizar query con proyección y límite
     const expenses = await Expense.find(query)
-      .select("amount description categoryId paymentMethodId date createdAt updatedAt")
+      .select(
+        "amount description note isCompleted categoryId paymentMethodId date createdAt updatedAt"
+      )
       .sort({ date: -1 })
       .limit(1000) // Límite para evitar cargar demasiados datos
       .lean();
@@ -85,6 +102,8 @@ export async function GET(request: NextRequest) {
       id: exp._id.toString(),
       amount: exp.amount,
       description: exp.description,
+      note: exp.note || undefined,
+      isCompleted: exp.isCompleted || false,
       categoryId: exp.categoryId,
       paymentMethodId: exp.paymentMethodId,
       date: exp.date.toISOString(),
@@ -118,6 +137,8 @@ export async function POST(request: NextRequest) {
       userId: currentUser.userId,
       amount: body.amount,
       description: body.description,
+      note: body.note || undefined,
+      isCompleted: body.isCompleted || false,
       categoryId: body.categoryId,
       paymentMethodId: body.paymentMethodId,
       date: new Date(body.date),
@@ -129,6 +150,8 @@ export async function POST(request: NextRequest) {
       id: (savedExpense._id as any).toString(),
       amount: savedExpense.amount,
       description: savedExpense.description,
+      note: savedExpense.note || undefined,
+      isCompleted: savedExpense.isCompleted || false,
       categoryId: savedExpense.categoryId,
       paymentMethodId: savedExpense.paymentMethodId,
       date: savedExpense.date.toISOString(),

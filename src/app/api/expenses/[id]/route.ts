@@ -32,6 +32,8 @@ export async function GET(
       id: expense._id.toString(),
       amount: expense.amount,
       description: expense.description,
+      note: expense.note || undefined,
+      isCompleted: expense.isCompleted || false,
       categoryId: expense.categoryId,
       paymentMethodId: expense.paymentMethodId,
       date: expense.date.toISOString(),
@@ -68,6 +70,9 @@ export async function PUT(
     if (body.amount !== undefined) updateData.amount = body.amount;
     if (body.description !== undefined)
       updateData.description = body.description;
+    if (body.note !== undefined) updateData.note = body.note || undefined;
+    if (body.isCompleted !== undefined)
+      updateData.isCompleted = body.isCompleted || false;
     if (body.categoryId !== undefined) updateData.categoryId = body.categoryId;
     if (body.paymentMethodId !== undefined)
       updateData.paymentMethodId = body.paymentMethodId;
@@ -87,6 +92,8 @@ export async function PUT(
       id: expense._id.toString(),
       amount: expense.amount,
       description: expense.description,
+      note: expense.note || undefined,
+      isCompleted: expense.isCompleted || false,
       categoryId: expense.categoryId,
       paymentMethodId: expense.paymentMethodId,
       date: expense.date.toISOString(),
