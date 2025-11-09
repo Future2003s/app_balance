@@ -22,21 +22,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           </label>
         )}
         <div className="relative">
-          <input
-            ref={ref}
-            type={isPassword && showPassword ? 'text' : type}
-            className={cn(
-              'w-full px-4 py-2.5 border border-gray-200 rounded-lg',
-              'bg-gray-50 text-gray-900 placeholder:text-gray-400',
-              'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white',
-              'transition-colors duration-200',
-              'disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500',
-              error && 'border-red-300 bg-red-50 focus:ring-red-500 focus:border-red-500',
-              isPassword && 'pr-10',
-              className
-            )}
-            {...props}
-          />
+        <input
+          ref={ref}
+          type={isPassword && showPassword ? 'text' : type}
+          lang="vi"
+          className={cn(
+            'w-full px-4 py-2.5 border border-gray-200 rounded-lg',
+            'bg-gray-50 text-gray-900 placeholder:text-gray-400',
+            'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white',
+            'transition-colors duration-200',
+            'disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500',
+            error && 'border-red-300 bg-red-50 focus:ring-red-500 focus:border-red-500',
+            isPassword && 'pr-10',
+            className
+          )}
+          {...props}
+        />
           {isPassword && (
             <button
               type="button"

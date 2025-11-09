@@ -54,3 +54,52 @@ body {
   animation-delay: 4s;
 }
 
+/* Estilos para date picker en vietnamita */
+input[type="date"] {
+  position: relative;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  color: transparent;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background: transparent;
+}
+
+/* Estilos específicos para date picker en vietnamita */
+input[type="date"][lang="vi-VN"],
+input[type="date"][data-locale="vi-VN"] {
+  font-family: system-ui, -apple-system, sans-serif;
+  direction: ltr;
+}
+
+/* Forzar locale vietnamita en el calendario nativo */
+input[type="date"][lang="vi-VN"]::-webkit-datetime-edit,
+input[type="date"][data-locale="vi-VN"]::-webkit-datetime-edit {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+input[type="date"][lang="vi-VN"]::-webkit-datetime-edit-fields-wrapper,
+input[type="date"][data-locale="vi-VN"]::-webkit-datetime-edit-fields-wrapper {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Asegurar que el calendario popup use el locale correcto */
+html[lang="vi"] input[type="date"],
+html[lang="vi"] input[type="date"][lang="vi-VN"] {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+

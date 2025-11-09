@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { ExpenseFilters as ExpenseFiltersType } from "@/lib/types";
 import { Input } from "@/components/ui/Input";
+import { DateInput } from "@/components/ui/DateInput";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { categoryService } from "@/services/category.service";
 import { paymentMethodService } from "@/services/paymentMethod.service";
+import { debounce } from "@/lib/utils/debounce";
 import { X } from "lucide-react";
 
 interface ExpenseFiltersProps {
@@ -25,8 +27,11 @@ export function ExpenseFilters({
 
   useEffect(() => {
     const loadData = async () => {
-      const cats = await categoryService.getAll();
-      const pms = await paymentMethodService.getAll();
+      // Cargar datos en paralelo
+      const [cats, pms] = await Promise.all([
+        categoryService.getAll(),
+        paymentMethodService.getAll(),
+      ]);
       setCategories(cats);
       setPaymentMethods(pms);
     };
@@ -37,11 +42,32 @@ export function ExpenseFilters({
     setLocalFilters(filters);
   }, [filters]);
 
-  const handleFilterChange = (key: keyof ExpenseFiltersType, value: any) => {
-    const newFilters = { ...localFilters, [key]: value || undefined };
-    setLocalFilters(newFilters);
-    onFiltersChange(newFilters);
-  };
+  // Debounce para búsqueda de texto
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value: string) => {
+        const newFilters = { ...localFilters, search: value || undefined };
+        setLocalFilters(newFilters);
+        onFiltersChange(newFilters);
+      }, 300),
+    [localFilters, onFiltersChange]
+  );
+
+  const handleFilterChange = useCallback(
+    (key: keyof ExpenseFiltersType, value: any) => {
+      if (key === "search") {
+        // Para búsqueda, usar debounce
+        setLocalFilters((prev) => ({ ...prev, search: value }));
+        debouncedSearch(value);
+      } else {
+        // Para otros filtros, actualizar inmediatamente
+        const newFilters = { ...localFilters, [key]: value || undefined };
+        setLocalFilters(newFilters);
+        onFiltersChange(newFilters);
+      }
+    },
+    [localFilters, onFiltersChange, debouncedSearch]
+  );
 
   const clearFilters = () => {
     const emptyFilters: ExpenseFiltersType = {};
@@ -56,18 +82,16 @@ export function ExpenseFilters({
   return (
     <Card title="Bộ Lọc">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <Input
-          type="date"
-          label="Ngày Bắt Đầu"
-          value={localFilters.startDate || ""}
-          onChange={(e) => handleFilterChange("startDate", e.target.value)}
-        />
-        <Input
-          type="date"
-          label="Ngày Kết Thúc"
-          value={localFilters.endDate || ""}
-          onChange={(e) => handleFilterChange("endDate", e.target.value)}
-        />
+          <DateInput
+            label="Ngày Bắt Đầu"
+            value={localFilters.startDate || ""}
+            onChange={(e) => handleFilterChange("startDate", e.target.value)}
+          />
+          <DateInput
+            label="Ngày Kết Thúc"
+            value={localFilters.endDate || ""}
+            onChange={(e) => handleFilterChange("endDate", e.target.value)}
+          />
         <Select
           label="Danh Mục"
           value={localFilters.categoryId || ""}

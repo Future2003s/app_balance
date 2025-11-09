@@ -1,36 +1,51 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Expense, Category, PaymentMethod } from '@/lib/types';
-import { formatCurrency, formatDate } from '@/lib/utils/format';
-import { categoryService } from '@/services/category.service';
-import { paymentMethodService } from '@/services/paymentMethod.service';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { Edit, Trash2 } from 'lucide-react';
-import Link from 'next/link';
+import { memo, useEffect, useState, useMemo } from "react";
+import { Expense, Category, PaymentMethod } from "@/lib/types";
+import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { categoryService } from "@/services/category.service";
+import { paymentMethodService } from "@/services/paymentMethod.service";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Edit, Trash2 } from "lucide-react";
+import Link from "next/link";
 
 interface ExpenseListProps {
   expenses: Expense[];
   onDelete: (id: string) => void;
 }
 
-export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
+export const ExpenseList = memo(function ExpenseList({
+  expenses,
+  onDelete,
+}: ExpenseListProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
-      const cats = await categoryService.getAll();
-      const pms = await paymentMethodService.getAll();
+      const [cats, pms] = await Promise.all([
+        categoryService.getAll(),
+        paymentMethodService.getAll(),
+      ]);
       setCategories(cats);
       setPaymentMethods(pms);
     };
     loadData();
   }, []);
 
-  const getCategory = (id: string) => categories.find(cat => cat.id === id);
-  const getPaymentMethod = (id: string) => paymentMethods.find(pm => pm.id === id);
+  // Memoizar las funciones de búsqueda
+  const categoryMap = useMemo(
+    () => new Map(categories.map((cat) => [cat.id, cat])),
+    [categories]
+  );
+  const paymentMethodMap = useMemo(
+    () => new Map(paymentMethods.map((pm) => [pm.id, pm])),
+    [paymentMethods]
+  );
+
+  const getCategory = (id: string) => categoryMap.get(id);
+  const getPaymentMethod = (id: string) => paymentMethodMap.get(id);
   if (expenses.length === 0) {
     return (
       <div className="text-center py-12">
@@ -178,5 +193,5 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
       </div>
     </>
   );
-}
+});
 

@@ -13,21 +13,11 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    // Verificar si hay métodos de pago por defecto, si no, inicializarlos
-    const defaultPaymentMethodsCount = await PaymentMethod.countDocuments({
-      isDefault: true,
-    });
-    
-    if (defaultPaymentMethodsCount === 0) {
-      // Inicializar métodos de pago por defecto
-      const { initDefaultData } = await import("@/lib/initDefaultData");
-      await initDefaultData();
-    }
-
-    // Obtener métodos de pago del usuario y métodos por defecto
+    // Obtener solo los métodos de pago del usuario con proyección optimizada
     const paymentMethods = await PaymentMethod.find({
-      $or: [{ userId: currentUser.userId }, { isDefault: true }],
+      userId: currentUser.userId,
     })
+      .select("name icon createdAt updatedAt")
       .sort({ name: 1 })
       .lean();
 
@@ -65,7 +55,6 @@ export async function POST(request: NextRequest) {
       userId: currentUser.userId,
       name: body.name,
       icon: body.icon,
-      isDefault: false,
     });
 
     const savedPaymentMethod = await paymentMethod.save();

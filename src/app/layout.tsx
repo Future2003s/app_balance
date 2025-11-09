@@ -13,7 +13,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className="antialiased" suppressHydrationWarning>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta httpEquiv="Content-Language" content="vi-VN" />
+      </head>
+      <body className="antialiased" suppressHydrationWarning lang="vi">
         {children}
       </body>
     </html>

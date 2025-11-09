@@ -13,10 +13,11 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    // Obtener solo las categorías del usuario
+    // Obtener solo las categorías del usuario con proyección optimizada
     const categories = await Category.find({
       userId: currentUser.userId,
     })
+      .select("name color icon isDefault createdAt updatedAt")
       .sort({ name: 1 })
       .lean();
 

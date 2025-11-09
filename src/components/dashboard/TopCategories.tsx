@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Card } from '@/components/ui/Card';
 import { formatCurrency } from '@/lib/utils/format';
 
@@ -14,7 +15,7 @@ interface TopCategoriesProps {
   categories: TopCategory[];
 }
 
-export function TopCategories({ categories }: TopCategoriesProps) {
+export const TopCategories = memo(function TopCategories({ categories }: TopCategoriesProps) {
   if (categories.length === 0) {
     return (
       <Card title="Top Danh Mục">
@@ -57,5 +58,5 @@ export function TopCategories({ categories }: TopCategoriesProps) {
       </div>
     </Card>
   );
-}
+});
 

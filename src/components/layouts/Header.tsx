@@ -16,6 +16,7 @@ export function Header() {
     { href: "/", label: "Trang Chủ" },
     { href: "/expenses", label: "Chi Tiêu" },
     { href: "/categories", label: "Danh Mục" },
+    { href: "/payment-methods", label: "Phương Thức" },
   ];
 
   const isActive = (href: string) => {

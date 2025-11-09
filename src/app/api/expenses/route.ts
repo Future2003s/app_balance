@@ -74,7 +74,12 @@ export async function GET(request: NextRequest) {
       query.description = { $regex: filters.search, $options: "i" };
     }
 
-    const expenses = await Expense.find(query).sort({ date: -1 }).lean();
+    // Optimizar query con proyección y límite
+    const expenses = await Expense.find(query)
+      .select("amount description categoryId paymentMethodId date createdAt updatedAt")
+      .sort({ date: -1 })
+      .limit(1000) // Límite para evitar cargar demasiados datos
+      .lean();
 
     const formattedExpenses = expenses.map((exp) => ({
       id: exp._id.toString(),

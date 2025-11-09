@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 // GET - Obtener un método de pago por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
     const currentUser = getCurrentUser(request);
@@ -16,9 +16,11 @@ export async function GET(
 
     await connectDB();
 
+    const { id } = await Promise.resolve(params);
+
     const paymentMethod = await PaymentMethod.findOne({
-      _id: params.id,
-      $or: [{ userId: currentUser.userId }, { isDefault: true }],
+      _id: id,
+      userId: currentUser.userId,
     }).lean();
 
     if (!paymentMethod) {
@@ -47,7 +49,7 @@ export async function GET(
 // PUT - Actualizar un método de pago
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
     const currentUser = getCurrentUser(request);
@@ -57,18 +59,18 @@ export async function PUT(
 
     await connectDB();
 
-    // Verificar que el método de pago pertenece al usuario (no puede editar los por defecto)
-    const existingPaymentMethod = await PaymentMethod.findById(params.id).lean();
+    const { id } = await Promise.resolve(params);
+
+    // Verificar que el método de pago pertenece al usuario
+    const existingPaymentMethod = await PaymentMethod.findOne({
+      _id: id,
+      userId: currentUser.userId,
+    }).lean();
+    
     if (!existingPaymentMethod) {
       return NextResponse.json(
-        { error: "Payment method not found" },
+        { error: "Không tìm thấy phương thức thanh toán hoặc bạn không có quyền chỉnh sửa" },
         { status: 404 }
-      );
-    }
-    if (existingPaymentMethod.isDefault || existingPaymentMethod.userId !== currentUser.userId) {
-      return NextResponse.json(
-        { error: "Cannot edit default payment method" },
-        { status: 403 }
       );
     }
 
@@ -79,7 +81,7 @@ export async function PUT(
     if (body.icon !== undefined) updateData.icon = body.icon;
 
     const paymentMethod = await PaymentMethod.findOneAndUpdate(
-      { _id: params.id, userId: currentUser.userId },
+      { _id: id, userId: currentUser.userId },
       updateData,
       { new: true, runValidators: true }
     ).lean();
@@ -110,7 +112,7 @@ export async function PUT(
 // DELETE - Eliminar un método de pago
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
     const currentUser = getCurrentUser(request);
@@ -120,23 +122,23 @@ export async function DELETE(
 
     await connectDB();
 
-    // Verificar que el método de pago pertenece al usuario (no puede eliminar los por defecto)
-    const existingPaymentMethod = await PaymentMethod.findById(params.id).lean();
+    const { id } = await Promise.resolve(params);
+
+    // Verificar que el método de pago pertenece al usuario
+    const existingPaymentMethod = await PaymentMethod.findOne({
+      _id: id,
+      userId: currentUser.userId,
+    }).lean();
+    
     if (!existingPaymentMethod) {
       return NextResponse.json(
-        { error: "Payment method not found" },
+        { error: "Không tìm thấy phương thức thanh toán hoặc bạn không có quyền xóa" },
         { status: 404 }
-      );
-    }
-    if (existingPaymentMethod.isDefault || existingPaymentMethod.userId !== currentUser.userId) {
-      return NextResponse.json(
-        { error: "Cannot delete default payment method" },
-        { status: 403 }
       );
     }
 
     const paymentMethod = await PaymentMethod.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       userId: currentUser.userId,
     });
 

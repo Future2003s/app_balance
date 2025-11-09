@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { memo, ReactNode } from 'react';
 import { formatCurrency } from '@/lib/utils/format';
 
 interface StatsCardProps {
@@ -11,7 +11,7 @@ interface StatsCardProps {
   trendLabel?: string;
 }
 
-export function StatsCard({ title, value, icon, trend, trendLabel }: StatsCardProps) {
+export const StatsCard = memo(function StatsCard({ title, value, icon, trend, trendLabel }: StatsCardProps) {
   const isNumber = typeof value === 'number';
   const displayValue = isNumber ? formatCurrency(value) : value;
 
@@ -36,5 +36,5 @@ export function StatsCard({ title, value, icon, trend, trendLabel }: StatsCardPr
       </div>
     </div>
   );
-}
+});
 

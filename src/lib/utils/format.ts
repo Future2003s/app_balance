@@ -72,3 +72,24 @@ export function formatPercentage(value: number, decimals: number = 1): string {
   return `${value >= 0 ? '+' : ''}${value.toFixed(decimals)}%`;
 }
 
+/**
+ * Formatea un número con separadores de miles (formato vietnamita: 1.000.000)
+ */
+export function formatNumber(value: number | string): string {
+  if (value === '' || value === null || value === undefined) return '';
+  const numValue = typeof value === 'string' ? parseFloat(value.replace(/\./g, '')) : value;
+  if (isNaN(numValue)) return '';
+  return new Intl.NumberFormat('vi-VN').format(numValue);
+}
+
+/**
+ * Convierte un string formateado a número (elimina separadores de miles)
+ */
+export function parseFormattedNumber(value: string): number {
+  if (!value) return 0;
+  // Eliminar todos los puntos (separadores de miles en formato vietnamita)
+  const cleaned = value.replace(/\./g, '');
+  const parsed = parseFloat(cleaned);
+  return isNaN(parsed) ? 0 : parsed;
+}
+

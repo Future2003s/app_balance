@@ -72,3 +72,8 @@ export interface MonthlyExpense {
   count: number;
 }
 
+export interface DailyExpense {
+  date: string;
+  total: number;
+  count: number;
+}

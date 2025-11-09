@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import { Expense, ExpenseFormData } from "@/lib/types";
 import { Input } from "@/components/ui/Input";
+import { DateInput } from "@/components/ui/DateInput";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { expenseService } from "@/services/expense.service";
 import { categoryService } from "@/services/category.service";
 import { paymentMethodService } from "@/services/paymentMethod.service";
-import { formatDateForInput } from "@/lib/utils/format";
+import { formatDateForInput, formatNumber, parseFormattedNumber } from "@/lib/utils/format";
 
 interface ExpenseFormProps {
   expense?: Expense;
@@ -24,6 +25,7 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
     paymentMethodId: "",
     date: new Date().toISOString().split("T")[0],
   });
+  const [formattedAmount, setFormattedAmount] = useState<string>("");
   const [errors, setErrors] = useState<
     Partial<Record<keyof ExpenseFormData, string>>
   >({});
@@ -32,8 +34,11 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
 
   useEffect(() => {
     const loadData = async () => {
-      const cats = await categoryService.getAll();
-      const pms = await paymentMethodService.getAll();
+      // Cargar datos en paralelo
+      const [cats, pms] = await Promise.all([
+        categoryService.getAll(),
+        paymentMethodService.getAll(),
+      ]);
       setCategories(cats);
       setPaymentMethods(pms);
     };
@@ -49,6 +54,9 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
         paymentMethodId: expense.paymentMethodId,
         date: formatDateForInput(expense.date),
       });
+      setFormattedAmount(formatNumber(expense.amount));
+    } else {
+      setFormattedAmount("");
     }
   }, [expense]);
 
@@ -99,15 +107,50 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
     <Card>
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         <Input
-          type="number"
+          type="text"
           label="Số Tiền"
-          value={formData.amount || ""}
-          onChange={(e) =>
-            setFormData({ ...formData, amount: Number(e.target.value) })
-          }
+          value={formattedAmount}
+          onChange={(e) => {
+            const inputValue = e.target.value;
+            
+            // Si está vacío, limpiar todo
+            if (inputValue === '') {
+              setFormattedAmount('');
+              setFormData({ ...formData, amount: 0 });
+              return;
+            }
+            
+            // Eliminar todos los caracteres que no sean dígitos
+            // (eliminar puntos de formato anterior)
+            const digitsOnly = inputValue.replace(/\D/g, '');
+            
+            // Si no hay dígitos, limpiar
+            if (digitsOnly === '') {
+              setFormattedAmount('');
+              setFormData({ ...formData, amount: 0 });
+              return;
+            }
+            
+            // Convertir a número y formatear
+            const numericValue = parseInt(digitsOnly, 10);
+            if (!isNaN(numericValue)) {
+              setFormData({ ...formData, amount: numericValue });
+              setFormattedAmount(formatNumber(numericValue));
+            }
+          }}
+          onBlur={(e) => {
+            // Asegurar formato correcto al perder el foco
+            const numericValue = parseFormattedNumber(e.target.value);
+            if (numericValue > 0) {
+              setFormData({ ...formData, amount: numericValue });
+              setFormattedAmount(formatNumber(numericValue));
+            } else {
+              setFormattedAmount('');
+              setFormData({ ...formData, amount: 0 });
+            }
+          }}
           error={errors.amount}
-          step="0.01"
-          min="0.01"
+          placeholder="Nhập số tiền"
           required
         />
 
@@ -157,8 +200,7 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
           required
         />
 
-        <Input
-          type="date"
+        <DateInput
           label="Ngày"
           value={formData.date}
           onChange={(e) => setFormData({ ...formData, date: e.target.value })}
