@@ -40,24 +40,71 @@ export function ExpensesPageClient() {
     }
   }, [isClient, filters]);
 
+  // Lắng nghe khi quay lại từ trang edit/new để cập nhật danh sách
+  useEffect(() => {
+    if (isClient) {
+      // Kiểm tra khi component mount hoặc khi quay lại từ trang khác
+      const checkForUpdates = () => {
+        if (localStorage.getItem('expense_updated') || localStorage.getItem('expense_created')) {
+          const loadExpenses = async () => {
+            const filtered = await expenseService.filter(filters);
+            setExpenses(filtered);
+          };
+          loadExpenses();
+          localStorage.removeItem('expense_updated');
+          localStorage.removeItem('expense_created');
+        }
+      };
+
+      // Kiểm tra ngay khi mount
+      checkForUpdates();
+
+      // Lắng nghe sự kiện focus để kiểm tra khi quay lại tab
+      const handleFocus = () => {
+        checkForUpdates();
+      };
+
+      window.addEventListener('focus', handleFocus);
+
+      return () => {
+        window.removeEventListener('focus', handleFocus);
+      };
+    }
+  }, [isClient, filters]);
+
   const handleDelete = async (id: string) => {
     if (confirm('Bạn có chắc chắn muốn xóa chi tiêu này?')) {
-      await expenseService.delete(id);
-      // Recargar gastos después de eliminar
-      const filtered = await expenseService.filter(filters);
-      setExpenses(filtered);
+      const success = await expenseService.delete(id);
+      if (success) {
+        // Cập nhật state local thay vì reload
+        setExpenses(prevExpenses => prevExpenses.filter(exp => exp.id !== id));
+      }
     }
   };
 
   const handleToggleComplete = async (id: string, isCompleted: boolean) => {
     try {
-      await expenseService.update(id, { isCompleted });
-      // Recargar gastos después de actualizar
-      const filtered = await expenseService.filter(filters);
-      setExpenses(filtered);
+      const updated = await expenseService.update(id, { isCompleted });
+      if (updated) {
+        // Cập nhật state local thay vì reload
+        setExpenses(prevExpenses =>
+          prevExpenses.map(exp =>
+            exp.id === id ? { ...exp, isCompleted } : exp
+          )
+        );
+      }
     } catch (error) {
       console.error("Error toggling complete status:", error);
     }
+  };
+
+  const handleExpenseUpdated = (updatedExpense: Expense) => {
+    // Cập nhật expense trong danh sách khi quay lại từ trang edit
+    setExpenses(prevExpenses =>
+      prevExpenses.map(exp =>
+        exp.id === updatedExpense.id ? updatedExpense : exp
+      )
+    );
   };
 
   if (!isClient) {

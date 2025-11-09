@@ -32,6 +32,8 @@ export function EditExpensePageClient({ id }: EditExpensePageClientProps) {
   }, [isClient, id, router]);
 
   const handleSuccess = () => {
+    // Đánh dấu đã cập nhật để trang danh sách reload
+    localStorage.setItem('expense_updated', 'true');
     router.push('/expenses');
   };
 

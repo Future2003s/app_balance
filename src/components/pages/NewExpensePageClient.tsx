@@ -10,6 +10,8 @@ export function NewExpensePageClient() {
   const isClient = useIsClient();
 
   const handleSuccess = () => {
+    // Đánh dấu đã tạo mới để trang danh sách reload
+    localStorage.setItem('expense_created', 'true');
     router.push('/expenses');
   };
 

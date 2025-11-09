@@ -178,14 +178,15 @@ export const ExpenseList = memo(function ExpenseList({
               className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
             >
               <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     {expense.isCompleted ? (
                       <button
                         type="button"
                         onClick={() => onToggleComplete?.(expense.id, !expense.isCompleted)}
                         title="Click để đánh dấu chưa hoàn thành"
-                        className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors"
+                        className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors touch-manipulation"
+                        aria-label="Đánh dấu chưa hoàn thành"
                       >
                         <CheckCircle2 className="w-5 h-5 text-green-500 hover:text-green-600 transition-colors" />
                       </button>
@@ -194,12 +195,13 @@ export const ExpenseList = memo(function ExpenseList({
                         type="button"
                         onClick={() => onToggleComplete?.(expense.id, !expense.isCompleted)}
                         title="Click để đánh dấu đã hoàn thành"
-                        className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors"
+                        className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors touch-manipulation"
+                        aria-label="Đánh dấu đã hoàn thành"
                       >
                         <Circle className="w-5 h-5 text-gray-300 hover:text-gray-400 transition-colors" />
                       </button>
                     )}
-                    <h3 className={`font-semibold ${expense.isCompleted ? "line-through text-gray-500" : "text-gray-900"}`}>
+                    <h3 className={`font-semibold flex-1 min-w-0 ${expense.isCompleted ? "line-through text-gray-500" : "text-gray-900"}`}>
                       {expense.description}
                     </h3>
                   </div>
