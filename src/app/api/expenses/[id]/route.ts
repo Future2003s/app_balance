@@ -7,7 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 // GET - Obtener un gasto por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const currentUser = getCurrentUser(request);
@@ -17,8 +17,10 @@ export async function GET(
 
     await connectDB();
 
+    const { id } = await params;
+
     const expense = await Expense.findOne({
-      _id: params.id,
+      _id: id,
       userId: currentUser.userId,
     }).lean();
 
@@ -48,7 +50,7 @@ export async function GET(
 // PUT - Actualizar un gasto
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const currentUser = getCurrentUser(request);
@@ -57,6 +59,8 @@ export async function PUT(
     }
 
     await connectDB();
+
+    const { id } = await params;
 
     const body: Partial<ExpenseFormData> = await request.json();
 
@@ -70,7 +74,7 @@ export async function PUT(
     if (body.date !== undefined) updateData.date = new Date(body.date);
 
     const expense = await Expense.findOneAndUpdate(
-      { _id: params.id, userId: currentUser.userId },
+      { _id: id, userId: currentUser.userId },
       updateData,
       { new: true, runValidators: true }
     ).lean();
@@ -101,7 +105,7 @@ export async function PUT(
 // DELETE - Eliminar un gasto
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const currentUser = getCurrentUser(request);
@@ -111,8 +115,10 @@ export async function DELETE(
 
     await connectDB();
 
+    const { id } = await params;
+
     const expense = await Expense.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       userId: currentUser.userId,
     });
 

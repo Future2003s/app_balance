@@ -53,7 +53,11 @@ export function CategoryForm({
   onSuccess,
   onCancel,
 }: CategoryFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    color: string;
+    icon: string;
+  }>({
     name: "",
     color: COLOR_OPTIONS[0],
     icon: AVAILABLE_ICONS[0],

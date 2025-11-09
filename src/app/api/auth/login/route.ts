@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     // Generar token
     const token = generateToken({
-      userId: user._id.toString(),
+      userId: (user._id as any).toString(),
       email: user.email,
     });
 
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         user: {
-          id: user._id.toString(),
+          id: (user._id as any).toString(),
           email: user.email,
           name: user.name,
         },

@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 // GET - Obtener un método de pago por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const currentUser = getCurrentUser(request);
@@ -16,7 +16,7 @@ export async function GET(
 
     await connectDB();
 
-    const { id } = await Promise.resolve(params);
+    const { id } = await params;
 
     const paymentMethod = await PaymentMethod.findOne({
       _id: id,
@@ -49,7 +49,7 @@ export async function GET(
 // PUT - Actualizar un método de pago
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const currentUser = getCurrentUser(request);
@@ -59,7 +59,7 @@ export async function PUT(
 
     await connectDB();
 
-    const { id } = await Promise.resolve(params);
+    const { id } = await params;
 
     // Verificar que el método de pago pertenece al usuario
     const existingPaymentMethod = await PaymentMethod.findOne({
@@ -112,7 +112,7 @@ export async function PUT(
 // DELETE - Eliminar un método de pago
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const currentUser = getCurrentUser(request);
@@ -122,7 +122,7 @@ export async function DELETE(
 
     await connectDB();
 
-    const { id } = await Promise.resolve(params);
+    const { id } = await params;
 
     // Verificar que el método de pago pertenece al usuario
     const existingPaymentMethod = await PaymentMethod.findOne({

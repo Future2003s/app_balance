@@ -30,7 +30,10 @@ export function PaymentMethodForm({
   onSuccess,
   onCancel,
 }: PaymentMethodFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    icon: string;
+  }>({
     name: "",
     icon: AVAILABLE_ICONS[0],
   });

@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 // GET - Obtener una categoría por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const currentUser = getCurrentUser(request);
@@ -16,7 +16,7 @@ export async function GET(
 
     await connectDB();
 
-    const { id } = await Promise.resolve(params);
+    const { id } = await params;
 
     const category = await Category.findOne({
       _id: id,
@@ -50,7 +50,7 @@ export async function GET(
 // PUT - Actualizar una categoría
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const currentUser = getCurrentUser(request);
@@ -60,7 +60,7 @@ export async function PUT(
 
     await connectDB();
 
-    const { id } = await Promise.resolve(params);
+    const { id } = await params;
 
     // Verificar que la categoría pertenece al usuario
     const existingCategory = await Category.findOne({
@@ -115,7 +115,7 @@ export async function PUT(
 // DELETE - Eliminar una categoría
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const currentUser = getCurrentUser(request);
@@ -129,7 +129,7 @@ export async function DELETE(
     await connectDB();
 
     // Obtener el ID del parámetro (Next.js 15 puede requerir await)
-    const { id } = await Promise.resolve(params);
+    const { id } = await params;
 
     // Verificar que la categoría pertenece al usuario
     const existingCategory = await Category.findOne({

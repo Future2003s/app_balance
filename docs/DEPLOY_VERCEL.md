@@ -12,6 +12,7 @@ Hướng dẫn chi tiết để deploy ứng dụng Quản Lý Chi Tiêu lên Ve
 ## Bước 1: Chuẩn Bị Repository
 
 1. Đảm bảo dự án đã được commit và push lên Git:
+
 ```bash
 git add .
 git commit -m "Prepare for deployment"
@@ -49,16 +50,19 @@ git push origin main
 ### Cách 2: Deploy Từ CLI
 
 1. Cài đặt Vercel CLI:
+
 ```bash
 npm i -g vercel
 ```
 
 2. Đăng nhập:
+
 ```bash
 vercel login
 ```
 
 3. Deploy:
+
 ```bash
 vercel
 ```
@@ -75,11 +79,11 @@ vercel
 1. Vào project → **Settings** → **Environment Variables**
 2. Thêm các biến sau:
 
-| Tên Biến | Giá Trị | Môi Trường |
-|----------|---------|------------|
-| `MONGODB_URI` | `mongodb+srv://...` | Production, Preview, Development |
-| `MONGODB_DB_NAME` | Tên database của bạn | Production, Preview, Development |
-| `JWT_SECRET` | Chuỗi bí mật ngẫu nhiên (ít nhất 32 ký tự) | Production, Preview, Development |
+| Tên Biến          | Giá Trị                                    | Môi Trường                       |
+| ----------------- | ------------------------------------------ | -------------------------------- |
+| `MONGODB_URI`     | `mongodb+srv://...`                        | Production, Preview, Development |
+| `MONGODB_DB_NAME` | Tên database của bạn                       | Production, Preview, Development |
+| `JWT_SECRET`      | Chuỗi bí mật ngẫu nhiên (ít nhất 32 ký tự) | Production, Preview, Development |
 
 ### Tạo JWT_SECRET:
 
@@ -91,7 +95,8 @@ openssl rand -base64 32
 # https://generate-secret.vercel.app/32
 ```
 
-**Lưu ý**: 
+**Lưu ý**:
+
 - `MONGODB_URI` phải được URL-encoded (ví dụ: `@` thành `%40`)
 - Chọn tất cả môi trường (Production, Preview, Development)
 - Click **"Save"** sau mỗi biến
@@ -108,6 +113,7 @@ JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
 
 1. Sau khi cấu hình biến môi trường, Vercel sẽ tự động trigger một build mới
 2. Hoặc bạn có thể:
+
    - Vào **Deployments** tab
    - Click **"Redeploy"** → **"Use existing Build Cache"** hoặc **"Redeploy"**
 
@@ -118,6 +124,7 @@ JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
 ## Bước 6: Kiểm Tra Ứng Dụng
 
 1. Sau khi deploy thành công, bạn sẽ nhận được URL:
+
    - Production: `https://your-project.vercel.app`
    - Preview: `https://your-project-git-branch.vercel.app`
 
@@ -137,15 +144,18 @@ JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
 ### Lỗi Build
 
 **Lỗi**: `Module not found` hoặc `Cannot find module`
+
 - **Giải pháp**: Kiểm tra `package.json` có đầy đủ dependencies
 
 **Lỗi**: `MONGODB_URI is not defined`
-- **Giải pháp**: 
+
+- **Giải pháp**:
   - Kiểm tra biến môi trường đã được thêm chưa
   - Đảm bảo chọn đúng môi trường (Production, Preview, Development)
   - Redeploy sau khi thêm biến
 
 **Lỗi**: `Mongoose connection error`
+
 - **Giải pháp**:
   - Kiểm tra MongoDB URI đúng format
   - Kiểm tra IP whitelist trong MongoDB Atlas (thêm `0.0.0.0/0` để cho phép tất cả)
@@ -154,16 +164,19 @@ JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
 ### Lỗi Runtime
 
 **Lỗi**: `Authentication failed`
+
 - **Giải pháp**: Kiểm tra `JWT_SECRET` đã được cấu hình
 
 **Lỗi**: `Cannot connect to MongoDB`
-- **Giải pháp**: 
+
+- **Giải pháp**:
   - Kiểm tra Network Access trong MongoDB Atlas
   - Thêm IP của Vercel (hoặc `0.0.0.0/0` cho development)
 
 ## Tự Động Deploy
 
 Vercel tự động deploy khi:
+
 - Push code lên branch `main` → Production
 - Push code lên branch khác → Preview
 - Tạo Pull Request → Preview
@@ -171,6 +184,7 @@ Vercel tự động deploy khi:
 ## Cập Nhật Ứng Dụng
 
 1. Commit và push code mới:
+
 ```bash
 git add .
 git commit -m "Update features"
@@ -198,4 +212,3 @@ git push origin main
 - [Vercel Documentation](https://vercel.com/docs)
 - [Next.js Deployment](https://nextjs.org/docs/deployment)
 - [MongoDB Atlas Setup](https://www.mongodb.com/docs/atlas/)
-

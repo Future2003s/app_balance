@@ -17,6 +17,7 @@ const UserSchema: Schema = new Schema(
       lowercase: true,
       trim: true,
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid email"],
+      index: true,
     },
     password: {
       type: String,
@@ -36,8 +37,7 @@ const UserSchema: Schema = new Schema(
   }
 );
 
-// Índice para búsquedas rápidas por email
-UserSchema.index({ email: 1 });
+// El índice ya está definido en el campo email con unique: true
 
 const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
