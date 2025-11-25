@@ -8,6 +8,7 @@ export interface Expense {
   isCompleted?: boolean;
   categoryId: string;
   paymentMethodId: string;
+  transactionType: "expense" | "income";
   date: Date | string;
   createdAt: Date | string;
   updatedAt: Date | string;
@@ -38,6 +39,7 @@ export interface ExpenseFormData {
   isCompleted?: boolean;
   categoryId: string;
   paymentMethodId: string;
+  transactionType: "expense" | "income";
   date: string;
 }
 
@@ -50,6 +52,7 @@ export interface ExpenseFilters {
   maxAmount?: number;
   search?: string;
   isCompleted?: boolean;
+  transactionType?: "expense" | "income";
 }
 
 export interface DashboardStats {

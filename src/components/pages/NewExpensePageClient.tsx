@@ -1,18 +1,19 @@
 "use client";
 
-import { useRouter } from 'next/navigation';
-import { DashboardLayout } from '@/components/layouts/DashboardLayout';
-import { ExpenseForm } from '@/components/expenses/ExpenseForm';
-import { useIsClient } from '@/hooks/useIsClient';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { DashboardLayout } from "@/components/layouts/DashboardLayout";
+import { ExpenseForm } from "@/components/expenses/ExpenseForm";
+import { useIsClient } from "@/hooks/useIsClient";
+import { Button } from "@/components/ui/Button";
 
 export function NewExpensePageClient() {
   const router = useRouter();
   const isClient = useIsClient();
 
   const handleSuccess = () => {
-    // Đánh dấu đã tạo mới để trang danh sách reload
-    localStorage.setItem('expense_created', 'true');
-    router.push('/expenses');
+    router.push("/expenses");
   };
 
   if (!isClient) {
@@ -27,11 +28,30 @@ export function NewExpensePageClient() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Thêm Chi Tiêu Mới</h1>
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-blue-600 uppercase">
+              Chi tiêu
+            </p>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Thêm Chi Tiêu Mới
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Điền đầy đủ số tiền, mô tả, danh mục và thời gian để ghi nhận giao
+              dịch.
+            </p>
+          </div>
+          <Link href="/expenses" className="w-full sm:w-auto">
+            <Button variant="outline" className="w-full sm:w-auto">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Quay lại danh sách
+            </Button>
+          </Link>
+        </div>
+
         <ExpenseForm onSuccess={handleSuccess} />
       </div>
     </DashboardLayout>
   );
 }
-

@@ -135,6 +135,8 @@ export const expenseService = {
       if (filters.search) params.append("search", filters.search);
       if (filters.isCompleted !== undefined)
         params.append("isCompleted", filters.isCompleted.toString());
+      if (filters.transactionType)
+        params.append("transactionType", filters.transactionType);
 
       const response = await fetch(`/api/expenses?${params.toString()}`, {
         credentials: "include",

@@ -19,9 +19,16 @@ import {
 interface ExpenseFormProps {
   expense?: Expense;
   onSuccess: () => void;
+  withCard?: boolean;
+  containerClassName?: string;
 }
 
-export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
+export function ExpenseForm({
+  expense,
+  onSuccess,
+  withCard = true,
+  containerClassName,
+}: ExpenseFormProps) {
   const [formData, setFormData] = useState<ExpenseFormData>({
     amount: 0,
     description: "",
@@ -29,6 +36,7 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
     isCompleted: false,
     categoryId: "",
     paymentMethodId: "",
+    transactionType: "expense",
     date: new Date().toISOString().split("T")[0],
   });
   const [formattedAmount, setFormattedAmount] = useState<string>("");
@@ -60,6 +68,7 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
         isCompleted: expense.isCompleted || false,
         categoryId: expense.categoryId,
         paymentMethodId: expense.paymentMethodId,
+        transactionType: expense.transactionType || "expense",
         date: formatDateForInput(expense.date),
       });
       setFormattedAmount(formatNumber(expense.amount));
@@ -111,9 +120,8 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
     onSuccess();
   };
 
-  return (
-    <Card>
-      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+  const formElement = (
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         <Input
           type="text"
           label="Số Tiền"
@@ -264,7 +272,16 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
             {expense ? "Cập Nhật" : "Tạo"} Chi Tiêu
           </Button>
         </div>
-      </form>
+    </form>
+  );
+
+  if (!withCard) {
+    return formElement;
+  }
+
+  return (
+    <Card className={containerClassName}>
+      {formElement}
     </Card>
   );
 }

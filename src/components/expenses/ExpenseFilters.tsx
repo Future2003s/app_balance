@@ -61,7 +61,8 @@ export function ExpenseFilters({
         debouncedSearch(value);
       } else {
         // Para otros filtros, actualizar inmediatamente
-        const newFilters = { ...localFilters, [key]: value || undefined };
+        const normalized = value === "" ? undefined : value;
+        const newFilters = { ...localFilters, [key]: normalized };
         setLocalFilters(newFilters);
         onFiltersChange(newFilters);
       }
@@ -116,6 +117,16 @@ export function ExpenseFilters({
               value: pm.id,
               label: pm.name,
             })),
+          ]}
+        />
+        <Select
+          label="Loai Giao Dich"
+          value={localFilters.transactionType || ""}
+          onChange={(e) => handleFilterChange("transactionType", e.target.value)}
+          options={[
+            { value: "", label: "Tat Ca" },
+            { value: "expense", label: "Chi tieu" },
+            { value: "income", label: "Tien vao" },
           ]}
         />
         <Input

@@ -38,6 +38,14 @@ export async function GET(request: NextRequest) {
     if (searchParams.get("search")) {
       filters.search = searchParams.get("search")!;
     }
+
+    const transactionTypeParam = searchParams.get("transactionType");
+    if (
+      transactionTypeParam === "expense" ||
+      transactionTypeParam === "income"
+    ) {
+      filters.transactionType = transactionTypeParam;
+    }
     if (
       searchParams.get("isCompleted") !== null &&
       searchParams.get("isCompleted") !== undefined
@@ -89,6 +97,10 @@ export async function GET(request: NextRequest) {
       query.isCompleted = filters.isCompleted;
     }
 
+    if (filters.transactionType) {
+      query.transactionType = filters.transactionType;
+    }
+
     // Optimizar query con proyección y límite
     const expenses = await Expense.find(query)
       .select(
@@ -106,6 +118,7 @@ export async function GET(request: NextRequest) {
       isCompleted: exp.isCompleted || false,
       categoryId: exp.categoryId,
       paymentMethodId: exp.paymentMethodId,
+      transactionType: exp.transactionType || "expense",
       date: exp.date.toISOString(),
       createdAt: exp.createdAt.toISOString(),
       updatedAt: exp.updatedAt.toISOString(),
@@ -141,6 +154,7 @@ export async function POST(request: NextRequest) {
       isCompleted: body.isCompleted || false,
       categoryId: body.categoryId,
       paymentMethodId: body.paymentMethodId,
+      transactionType: body.transactionType || "expense",
       date: new Date(body.date),
     });
 
@@ -154,6 +168,7 @@ export async function POST(request: NextRequest) {
       isCompleted: savedExpense.isCompleted || false,
       categoryId: savedExpense.categoryId,
       paymentMethodId: savedExpense.paymentMethodId,
+      transactionType: savedExpense.transactionType || "expense",
       date: savedExpense.date.toISOString(),
       createdAt: savedExpense.createdAt.toISOString(),
       updatedAt: savedExpense.updatedAt.toISOString(),

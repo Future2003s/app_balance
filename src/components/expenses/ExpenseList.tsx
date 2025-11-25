@@ -7,19 +7,21 @@ import { categoryService } from "@/services/category.service";
 import { paymentMethodService } from "@/services/paymentMethod.service";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Edit, Trash2, CheckCircle2, Circle } from "lucide-react";
+import { Edit, Trash2, CheckCircle2, Circle, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 interface ExpenseListProps {
   expenses: Expense[];
   onDelete: (id: string) => void;
   onToggleComplete?: (id: string, isCompleted: boolean) => void;
+  pendingExpenseIds?: string[];
 }
 
 export const ExpenseList = memo(function ExpenseList({
   expenses,
   onDelete,
   onToggleComplete,
+  pendingExpenseIds = [],
 }: ExpenseListProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -88,8 +90,16 @@ export const ExpenseList = memo(function ExpenseList({
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {expenses.map((expense) => {
+              const isPending = pendingExpenseIds.includes(expense.id);
               const category = getCategory(expense.categoryId);
               const paymentMethod = getPaymentMethod(expense.paymentMethodId);
+              const isIncome = expense.transactionType === "income";
+              const typeLabel = isIncome ? "Tien vao" : "Chi tieu";
+              const typeClasses = isIncome
+                ? "bg-green-50 text-green-600 border border-green-200"
+                : "bg-red-50 text-red-600 border border-red-200";
+              const amountSign = isIncome ? "+" : "-";
+              const amountColor = isIncome ? "text-green-600" : "text-red-600";
 
               return (
                 <tr key={expense.id} className="hover:bg-gray-50">
@@ -104,18 +114,28 @@ export const ExpenseList = memo(function ExpenseList({
                             type="button"
                             onClick={() => onToggleComplete?.(expense.id, !expense.isCompleted)}
                             title="Click để đánh dấu chưa hoàn thành"
-                            className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors"
+                            className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
+                            disabled={isPending}
                           >
-                            <CheckCircle2 className="w-5 h-5 text-green-500 hover:text-green-600 transition-colors" />
+                            {isPending ? (
+                              <Loader2 className="w-4 h-4 animate-spin text-green-500" />
+                            ) : (
+                              <CheckCircle2 className="w-5 h-5 text-green-500 hover:text-green-600 transition-colors" />
+                            )}
                           </button>
                         ) : (
                           <button
                             type="button"
                             onClick={() => onToggleComplete?.(expense.id, !expense.isCompleted)}
                             title="Click để đánh dấu đã hoàn thành"
-                            className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors"
+                            className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
+                            disabled={isPending}
                           >
-                            <Circle className="w-5 h-5 text-gray-300 hover:text-gray-400 transition-colors" />
+                            {isPending ? (
+                              <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                            ) : (
+                              <Circle className="w-5 h-5 text-gray-300 hover:text-gray-400 transition-colors" />
+                            )}
                           </button>
                         )}
                         <span className={expense.isCompleted ? "line-through text-gray-500" : ""}>
@@ -139,8 +159,17 @@ export const ExpenseList = memo(function ExpenseList({
                   <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {paymentMethod?.name || 'N/A'}
                   </td>
-                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                    {formatCurrency(expense.amount)}
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${typeClasses}`}
+                    >
+                      {typeLabel}
+                    </span>
+                  </td>
+                  <td
+                    className={`px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-semibold ${amountColor}`}
+                  >
+                    {`${amountSign}${formatCurrency(expense.amount)}`}
                   </td>
                   <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
@@ -153,9 +182,14 @@ export const ExpenseList = memo(function ExpenseList({
                         variant="ghost"
                         size="sm"
                         onClick={() => onDelete(expense.id)}
-                        className="text-red-600 hover:text-red-700"
+                        className="text-red-600 hover:text-red-700 disabled:opacity-50"
+                        disabled={isPending}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        {isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
                       </Button>
                     </div>
                   </td>
@@ -169,6 +203,7 @@ export const ExpenseList = memo(function ExpenseList({
       {/* Mobile Card View */}
       <div className="md:hidden space-y-4">
         {expenses.map((expense) => {
+          const isPending = pendingExpenseIds.includes(expense.id);
           const category = getCategory(expense.categoryId);
           const paymentMethod = getPaymentMethod(expense.paymentMethodId);
 
@@ -185,20 +220,30 @@ export const ExpenseList = memo(function ExpenseList({
                         type="button"
                         onClick={() => onToggleComplete?.(expense.id, !expense.isCompleted)}
                         title="Click để đánh dấu chưa hoàn thành"
-                        className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors touch-manipulation"
+                        className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors touch-manipulation disabled:opacity-60"
+                        disabled={isPending}
                         aria-label="Đánh dấu chưa hoàn thành"
                       >
-                        <CheckCircle2 className="w-5 h-5 text-green-500 hover:text-green-600 transition-colors" />
+                        {isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-green-500" />
+                        ) : (
+                          <CheckCircle2 className="w-5 h-5 text-green-500 hover:text-green-600 transition-colors" />
+                        )}
                       </button>
                     ) : (
                       <button
                         type="button"
                         onClick={() => onToggleComplete?.(expense.id, !expense.isCompleted)}
                         title="Click để đánh dấu đã hoàn thành"
-                        className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors touch-manipulation"
+                        className="flex-shrink-0 p-0.5 hover:bg-gray-100 rounded transition-colors touch-manipulation disabled:opacity-60"
+                        disabled={isPending}
                         aria-label="Đánh dấu đã hoàn thành"
                       >
-                        <Circle className="w-5 h-5 text-gray-300 hover:text-gray-400 transition-colors" />
+                        {isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                        ) : (
+                          <Circle className="w-5 h-5 text-gray-300 hover:text-gray-400 transition-colors" />
+                        )}
                       </button>
                     )}
                     <h3 className={`font-semibold flex-1 min-w-0 ${expense.isCompleted ? "line-through text-gray-500" : "text-gray-900"}`}>
@@ -241,10 +286,20 @@ export const ExpenseList = memo(function ExpenseList({
                   variant="outline"
                   size="sm"
                   onClick={() => onDelete(expense.id)}
-                  className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
+                  className="flex-1 text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-60"
+                  disabled={isPending}
                 >
-                  <Trash2 className="w-4 h-4 mr-1" />
-                  Xóa
+                  {isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                      Đang xử lý
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Xóa
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

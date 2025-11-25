@@ -8,6 +8,7 @@ export interface IExpense extends Document {
   isCompleted: boolean;
   categoryId: string;
   paymentMethodId: string;
+  transactionType: "expense" | "income";
   date: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -50,6 +51,13 @@ const ExpenseSchema: Schema = new Schema(
     paymentMethodId: {
       type: String,
       required: true,
+    },
+    transactionType: {
+      type: String,
+      enum: ["expense", "income"],
+      default: "expense",
+      required: true,
+      index: true,
     },
     date: {
       type: Date,

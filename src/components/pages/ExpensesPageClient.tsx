@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, useMemo } from "react";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useIsClient } from "@/hooks/useIsClient";
-import { expenseService } from "@/services/expense.service";
-import { Expense, ExpenseFilters as ExpenseFiltersType } from "@/lib/types";
+import { ExpenseFilters as ExpenseFiltersType } from "@/lib/types";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { CardSkeleton, TableSkeleton, Skeleton } from "@/components/ui/Skeleton";
 import { ExpenseSummary } from "@/components/expenses/ExpenseSummary";
+import { useExpensesData } from "@/hooks/useExpensesData";
 
 // Lazy loading de componentes pesados
 const ExpenseList = lazy(() =>
@@ -26,86 +26,26 @@ const ExpenseFilters = lazy(() =>
 
 export function ExpensesPageClient() {
   const isClient = useIsClient();
-  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [filters, setFilters] = useState<ExpenseFiltersType>({});
+  const {
+    expenses,
+    isLoading,
+    pendingExpenseIds,
+    deleteExpense,
+    toggleExpenseCompletion,
+  } = useExpensesData({ filters });
 
+  const visibleExpenses = useMemo(
+    () => expenses,
+    [expenses]
+  );
 
-  useEffect(() => {
-    if (isClient) {
-      const loadExpenses = async () => {
-        const filtered = await expenseService.filter(filters);
-        setExpenses(filtered);
-      };
-      loadExpenses();
+  const summaryExpenses = useMemo(() => {
+    if (filters.isCompleted === undefined) {
+      return visibleExpenses.filter((expense) => !(expense.isCompleted ?? false));
     }
-  }, [isClient, filters]);
-
-  // Lắng nghe khi quay lại từ trang edit/new để cập nhật danh sách
-  useEffect(() => {
-    if (isClient) {
-      // Kiểm tra khi component mount hoặc khi quay lại từ trang khác
-      const checkForUpdates = () => {
-        if (localStorage.getItem('expense_updated') || localStorage.getItem('expense_created')) {
-          const loadExpenses = async () => {
-            const filtered = await expenseService.filter(filters);
-            setExpenses(filtered);
-          };
-          loadExpenses();
-          localStorage.removeItem('expense_updated');
-          localStorage.removeItem('expense_created');
-        }
-      };
-
-      // Kiểm tra ngay khi mount
-      checkForUpdates();
-
-      // Lắng nghe sự kiện focus để kiểm tra khi quay lại tab
-      const handleFocus = () => {
-        checkForUpdates();
-      };
-
-      window.addEventListener('focus', handleFocus);
-
-      return () => {
-        window.removeEventListener('focus', handleFocus);
-      };
-    }
-  }, [isClient, filters]);
-
-  const handleDelete = async (id: string) => {
-    if (confirm('Bạn có chắc chắn muốn xóa chi tiêu này?')) {
-      const success = await expenseService.delete(id);
-      if (success) {
-        // Cập nhật state local thay vì reload
-        setExpenses(prevExpenses => prevExpenses.filter(exp => exp.id !== id));
-      }
-    }
-  };
-
-  const handleToggleComplete = async (id: string, isCompleted: boolean) => {
-    try {
-      const updated = await expenseService.update(id, { isCompleted });
-      if (updated) {
-        // Cập nhật state local thay vì reload
-        setExpenses(prevExpenses =>
-          prevExpenses.map(exp =>
-            exp.id === id ? { ...exp, isCompleted } : exp
-          )
-        );
-      }
-    } catch (error) {
-      console.error("Error toggling complete status:", error);
-    }
-  };
-
-  const handleExpenseUpdated = (updatedExpense: Expense) => {
-    // Cập nhật expense trong danh sách khi quay lại từ trang edit
-    setExpenses(prevExpenses =>
-      prevExpenses.map(exp =>
-        exp.id === updatedExpense.id ? updatedExpense : exp
-      )
-    );
-  };
+    return visibleExpenses;
+  }, [visibleExpenses, filters.isCompleted]);
 
   if (!isClient) {
     return (
@@ -146,8 +86,8 @@ export function ExpensesPageClient() {
         </Suspense>
 
         {/* Expense Summary */}
-        {expenses.length > 0 && (
-          <ExpenseSummary expenses={expenses} />
+        {summaryExpenses.length > 0 && (
+          <ExpenseSummary expenses={summaryExpenses} />
         )}
 
         {/* Expenses List */}
@@ -163,9 +103,14 @@ export function ExpensesPageClient() {
         >
           <Card>
             <ExpenseList
-              expenses={expenses}
-              onDelete={handleDelete}
-              onToggleComplete={handleToggleComplete}
+              expenses={visibleExpenses}
+              onDelete={(id) => {
+                if (confirm('Bạn có chắc chắn muốn xóa chi tiêu này?')) {
+                  deleteExpense(id);
+                }
+              }}
+              onToggleComplete={toggleExpenseCompletion}
+              pendingExpenseIds={pendingExpenseIds}
             />
           </Card>
         </Suspense>

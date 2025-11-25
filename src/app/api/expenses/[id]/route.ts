@@ -36,6 +36,7 @@ export async function GET(
       isCompleted: expense.isCompleted || false,
       categoryId: expense.categoryId,
       paymentMethodId: expense.paymentMethodId,
+      transactionType: expense.transactionType || "expense",
       date: expense.date.toISOString(),
       createdAt: expense.createdAt.toISOString(),
       updatedAt: expense.updatedAt.toISOString(),
@@ -76,6 +77,8 @@ export async function PUT(
     if (body.categoryId !== undefined) updateData.categoryId = body.categoryId;
     if (body.paymentMethodId !== undefined)
       updateData.paymentMethodId = body.paymentMethodId;
+    if (body.transactionType !== undefined)
+      updateData.transactionType = body.transactionType;
     if (body.date !== undefined) updateData.date = new Date(body.date);
 
     const expense = await Expense.findOneAndUpdate(
@@ -96,6 +99,7 @@ export async function PUT(
       isCompleted: expense.isCompleted || false,
       categoryId: expense.categoryId,
       paymentMethodId: expense.paymentMethodId,
+      transactionType: expense.transactionType || "expense",
       date: expense.date.toISOString(),
       createdAt: expense.createdAt.toISOString(),
       updatedAt: expense.updatedAt.toISOString(),
