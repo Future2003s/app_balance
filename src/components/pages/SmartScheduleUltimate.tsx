@@ -84,26 +84,31 @@ export default function SmartScheduleUltimate() {
   // Xử lý Dark Mode
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
+    const html = document.documentElement;
+    
     if (savedTheme === 'dark') {
+      html.classList.add('dark');
       setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
     } else {
+      html.classList.remove('dark');
       setIsDarkMode(false);
-      document.documentElement.classList.remove('dark');
     }
     setMounted(true);
   }, []);
 
   const toggleTheme = () => {
-    if (isDarkMode) {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-      setIsDarkMode(false);
-    } else {
-      document.documentElement.classList.add('dark');
+    const html = document.documentElement;
+    const newIsDark = !isDarkMode;
+    
+    if (newIsDark) {
+      html.classList.add('dark');
       localStorage.setItem('theme', 'dark');
-      setIsDarkMode(true);
+    } else {
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
+    
+    setIsDarkMode(newIsDark);
   };
 
   // Cập nhật thời gian
@@ -159,7 +164,10 @@ export default function SmartScheduleUltimate() {
 
     return (
       <div className="space-y-6 animate-in fade-in duration-500">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border-2 border-blue-500 dark:border-blue-600 relative transition-colors duration-300">
+        <div 
+          className="rounded-2xl shadow-xl overflow-hidden border-2 border-blue-500 dark:border-blue-600 relative transition-colors duration-300"
+          style={{ backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' }}
+        >
           <div 
             className="absolute top-0 left-0 h-1.5 bg-blue-500 dark:bg-blue-400 transition-all duration-1000 ease-linear z-10"
             style={{ width: `${progress}%` }}
@@ -175,7 +183,10 @@ export default function SmartScheduleUltimate() {
             </div>
           </div>
           
-          <div className="p-6 md:p-8 bg-white dark:bg-slate-800">
+          <div 
+            className="p-6 md:p-8"
+            style={{ backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' }}
+          >
             <div className="flex items-center text-4xl font-mono font-bold text-slate-800 dark:text-slate-100 mb-6">
               {currentEvent.start} 
               <span className="mx-3 text-slate-300 dark:text-slate-600 text-2xl font-normal">đến</span> 
@@ -200,7 +211,10 @@ export default function SmartScheduleUltimate() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 opacity-90 hover:opacity-100 transition-all">
+        <div 
+          className="rounded-xl p-5 border border-slate-200 dark:border-slate-700 opacity-90 hover:opacity-100 transition-all"
+          style={{ backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' }}
+        >
           <div className="flex items-center justify-between mb-3">
             <div className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center">
               <ArrowRight className="w-4 h-4 mr-1" /> Tiếp theo
@@ -208,7 +222,10 @@ export default function SmartScheduleUltimate() {
             <span className="text-slate-500 dark:text-slate-400 font-mono font-bold">{nextEvent?.start}</span>
           </div>
           <div className="flex items-center">
-            <div className="p-2 bg-white dark:bg-slate-700 rounded-lg shadow-sm mr-4 border border-slate-100 dark:border-slate-600">
+            <div 
+              className="p-2 rounded-lg shadow-sm mr-4 border border-slate-100 dark:border-slate-600"
+              style={{ backgroundColor: isDarkMode ? '#334155' : '#ffffff' }}
+            >
               {nextEvent && React.cloneElement(nextEvent.icon, { className: "w-5 h-5" })}
             </div>
             <div>
@@ -233,14 +250,22 @@ export default function SmartScheduleUltimate() {
             key={index} 
             className={`flex items-center p-3 md:p-4 rounded-lg border transition-all ${
               isActive 
-                ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 dark:border-blue-500 shadow-md scale-[1.01]' 
-                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+                ? 'border-blue-500 dark:border-blue-500 shadow-md scale-[1.01]' 
+                : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
             }`}
+            style={{ 
+              backgroundColor: isActive 
+                ? (isDarkMode ? 'rgba(30, 58, 138, 0.2)' : '#eff6ff')
+                : (isDarkMode ? '#1e293b' : '#ffffff')
+            }}
           >
             <div className="w-16 md:w-20 font-mono font-bold text-slate-600 dark:text-slate-400 text-xs md:text-sm flex-shrink-0">
               {item.start}
             </div>
-            <div className="mr-3 md:mr-4 p-2 bg-white dark:bg-slate-700 rounded-full shadow-sm">
+            <div 
+              className="mr-3 md:mr-4 p-2 rounded-full shadow-sm"
+              style={{ backgroundColor: isDarkMode ? '#334155' : '#ffffff' }}
+            >
               {React.cloneElement(item.icon, { className: "w-4 h-4 md:w-5 md:h-5" })}
             </div>
             <div className="flex-grow min-w-0">
@@ -289,11 +314,18 @@ export default function SmartScheduleUltimate() {
               </div>
 
               {/* Card Content */}
-              <div className={`p-4 rounded-lg border ${
-                isActive 
-                  ? 'bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800' 
-                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
-              }`}>
+              <div 
+                className={`p-4 rounded-lg border ${
+                  isActive 
+                    ? 'border-blue-200 dark:border-blue-800' 
+                    : 'border-slate-200 dark:border-slate-700'
+                }`}
+                style={{ 
+                  backgroundColor: isActive 
+                    ? (isDarkMode ? 'rgba(30, 58, 138, 0.1)' : '#eff6ff')
+                    : (isDarkMode ? '#1e293b' : '#ffffff')
+                }}
+              >
                 <div className="flex items-start justify-between mb-2">
                    <h3 className={`font-bold text-lg ${isActive ? 'text-blue-800 dark:text-blue-200' : 'text-slate-800 dark:text-slate-200'}`}>
                      {item.title}
@@ -324,12 +356,18 @@ export default function SmartScheduleUltimate() {
   );
 
   return (
-    <div className={`min-h-screen font-sans p-4 md:p-8 flex justify-center transition-colors duration-300 ${isDarkMode ? 'bg-slate-950' : 'bg-slate-100'}`}>
+    <div 
+      className={`min-h-screen font-sans p-4 md:p-8 flex justify-center transition-colors duration-300`}
+      style={{ backgroundColor: isDarkMode ? '#020617' : '#f1f5f9' }}
+    >
       <div className="w-full max-w-lg md:max-w-3xl">
         
         {/* Header Control */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-3">
-          <div className="flex bg-white dark:bg-slate-800 p-1 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 w-full md:w-auto overflow-hidden">
+          <div 
+            className="flex p-1 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 w-full md:w-auto overflow-hidden"
+            style={{ backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' }}
+          >
             <button 
               onClick={() => setViewMode('focus')}
               className={`flex-1 px-4 py-2 rounded-lg text-xs md:text-sm font-bold transition-all flex items-center justify-center ${
@@ -367,7 +405,8 @@ export default function SmartScheduleUltimate() {
 
           <button 
             onClick={toggleTheme}
-            className="p-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all text-slate-600 dark:text-yellow-400 w-full md:w-auto flex justify-center"
+            className="p-3 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all text-slate-600 dark:text-yellow-400 w-full md:w-auto flex justify-center"
+            style={{ backgroundColor: isDarkMode ? '#1e293b' : '#ffffff' }}
             aria-label="Toggle Dark Mode"
           >
             {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
