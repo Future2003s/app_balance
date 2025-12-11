@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react'],
   },
 
+  // Enable Turbopack (Next.js 16 default) even with custom webpack config
+  turbopack: {},
+
   // Configuración de webpack para optimización de bundle
   webpack: (config, { isServer }) => {
     if (!isServer) {
